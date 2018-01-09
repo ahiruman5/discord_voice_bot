@@ -3,7 +3,7 @@ const fs      = require('fs');
 require('dotenv').config();
 
 const client = new Discord.Client();
-client.login(process.env.TOKEN_ID).catch(err => {
+client.login(process.env.TOKEN_ID).catch(() => {
   console.log('TOKEN_IDが間違ってます');
   process.exit();
 });
@@ -47,8 +47,8 @@ client.on('message', message => {
   // メッセージが「.」から始まる場合botが反応する
   if (message.content.slice(0, 1) === '.') {
 
-    botMessage = message.content.split('.')[1];
-    botMessage = Number.isInteger(botMessage) ? parseInt(botMessage, 10) : botMessage;
+    let botMessage  = message.content.split('.')[1];
+    botMessage      = Number.isInteger(botMessage) ? parseInt(botMessage, 10) : botMessage;
     console.log(botMessage);
 
     // メッセージ内容で何を処理するか判定
