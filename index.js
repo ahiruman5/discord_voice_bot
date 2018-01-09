@@ -76,3 +76,21 @@ client.on('message', message => {
     }
   }
 });
+
+// ユーザ毎の入室音を取得
+const jsonData        = fs.readFileSync('joinedVoiceList.json');
+const joinedVoiceList = JSON.parse(jsonData);
+
+client.on('voiceStateUpdate', (oldMember, newMember) => {
+  // joinedVoiceList.jsonで定義したユーザ名のみ対象
+  if (Object.keys(joinedVoiceList).indexOf(newMember.user.username) !== -1) {
+    // ボイスチャンネルに入室した場合
+    if (oldMember.voiceChannelID !== newMember.voiceChannelID && newMember.voiceChannelID !== null) {
+      // 予め指定された音声を再生する
+      const voiceChannel = client.channels.get(newMember.voiceChannelID);
+      voiceChannel.join().then(connection => {
+        connection.playFile('./voiceList/' + voiceList[joinedVoiceList[newMember.user.username]]);
+      });
+    }
+  }
+});
