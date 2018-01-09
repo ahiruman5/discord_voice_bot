@@ -4,6 +4,7 @@
   "description": "discord voice bot",
   "main": "index.js",
   "scripts": {
+    "start": "node index.js",
     "getTextChannelList": "node getTextChannelList.js"
   },
   "author": "ahiruman5",
