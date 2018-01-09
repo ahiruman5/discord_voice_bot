@@ -2,13 +2,13 @@ const Discord = require('discord.js');
 require('dotenv').config();
 
 const client = new Discord.Client();
-client.login(process.env.TOKEN_ID).catch((err) => {
+client.login(process.env.TOKEN_ID).catch(() => {
   console.log('TOKEN_IDが間違ってます');
   process.exit();
 });
 
 client.on('ready', () => {
-  client.channels.forEach((channelInfo) => {
+  client.channels.forEach(channelInfo => {
     if (channelInfo.type === 'text') {
       console.log(channelInfo.id + ' => サーバ名: ' + channelInfo.guild.name + ', テキストチャンネル名: ' + channelInfo.name);
     }
