@@ -28,7 +28,8 @@
     "no-constant-condition": [
       "error", {"checkLoops": false}
     ],
-    "no-console": true
+    "no-unused-vars": 1,
+    "no-console": 0
   }
 }
 
