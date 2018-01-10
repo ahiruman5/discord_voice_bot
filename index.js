@@ -23,15 +23,16 @@ const voiceNameList = voiceList.map(voice => {
 
 console.log(voiceNameList);
 
+let textChannel;
 client.on('ready', () => {
   console.log('botの準備ができました');
 
   // bot用のテキストチャンネルが指定されている場合
   if (typeof process.env.TEXT_CHANNEL_ID !== 'undefined') {
-    const textChannel = client.channels.get(process.env.TEXT_CHANNEL_ID);
+    textChannel = client.channels.get(process.env.TEXT_CHANNEL_ID);
 
     // bot用のテキストチャンネルに起動メッセージ送信
-    if (typeof textChannel !== 'undefined') {
+    if (textChannel) {
       textChannel.send('botを起動しました');
     } else {
       console.log('bot用のテキストチャンネルIDが間違ってます');
@@ -41,38 +42,42 @@ client.on('ready', () => {
 
 // メッセージ受信イベント
 client.on('message', message => {
-  const sender        = message.member; // 送信者
-  const voiceChannel  = sender.voiceChannel; // 送信者の接続しているボイスチャンネル
+  // textChannelが定義されている場合はそのチャンネルからのメッセージのみ反応する
+  // 定義されていない場合はどこからでも反応できるようにする
+  if (!textChannel || message.channel.id === process.env.TEXT_CHANNEL_ID) {
+    const sender        = message.member; // 送信者
+    const voiceChannel  = sender.voiceChannel; // 送信者の接続しているボイスチャンネル
 
-  // メッセージが「.」から始まる場合botが反応する
-  if (message.content.slice(0, 1) === '.') {
+    // メッセージが「.」から始まる場合botが反応する
+    if (message.content.slice(0, 1) === '.') {
 
-    let botMessage  = message.content.split('.')[1];
-    botMessage      = Number.isInteger(botMessage) ? parseInt(botMessage, 10) : botMessage;
-    console.log(botMessage);
+      let botMessage  = message.content.split('.')[1];
+      botMessage      = Number.isInteger(botMessage) ? parseInt(botMessage, 10) : botMessage;
+      console.log(botMessage);
 
-    // メッセージ内容で何を処理するか判定
-    if (botMessage === 'list') {
-      // 「.list」で使用可能なコマンドを表示
-      const listMessage = [];
-      listMessage.push('「.」に続けて以下のメッセージを送信してください');
-      listMessage.push('list => 一覧表示');
-      listMessage.push('leave => ボイスチャンネルから退出');
-      Array.prototype.push.apply(listMessage, voiceNameList);
-      // メッセージ送信
-      message.channel.send(listMessage);
-    } else if (botMessage >= 0 && botMessage < voiceList.length) {
-      // 指定されたボイス番号を再生
-      if (voiceChannel) {
-        // 同じボイスチャンネルに接続
-        voiceChannel.join().then(connection => {
-          // 指定された音声を再生
-          connection.playFile('./voiceList/' + voiceList[botMessage]);
-        });
+      // メッセージ内容で何を処理するか判定
+      if (botMessage === 'list') {
+        // 「.list」で使用可能なコマンドを表示
+        const listMessage = [];
+        listMessage.push('「.」に続けて以下のメッセージを送信してください');
+        listMessage.push('list => 一覧表示');
+        listMessage.push('leave => ボイスチャンネルから退出');
+        Array.prototype.push.apply(listMessage, voiceNameList);
+        // メッセージ送信
+        message.channel.send(listMessage);
+      } else if (botMessage >= 0 && botMessage < voiceList.length) {
+        // 指定されたボイス番号を再生
+        if (voiceChannel) {
+          // 同じボイスチャンネルに接続
+          voiceChannel.join().then(connection => {
+            // 指定された音声を再生
+            connection.playFile('./voiceList/' + voiceList[botMessage]);
+          });
+        }
+      } else if (botMessage === 'leave' && voiceChannel) {
+        // 「.leave」でボイスチャンネルから退出
+        voiceChannel.leave();
       }
-    } else if (botMessage === 'leave') {
-      // 「.leave」でボイスチャンネルから退出
-      voiceChannel.leave();
     }
   }
 });
