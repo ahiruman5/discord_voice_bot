@@ -8,6 +8,7 @@
   "rules": {
     "no-process-exit": "off",
     "no-console": "off",
-    "node/exports-style": ["error", "module.exports"]
+    "node/exports-style": ["error", "module.exports"],
+    "semi": "error"
   }
 }
