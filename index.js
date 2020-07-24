@@ -29,7 +29,7 @@ client.on('ready', () => {
 
   // bot用のテキストチャンネルが指定されている場合
   if (typeof process.env.TEXT_CHANNEL_ID !== 'undefined') {
-    textChannel = client.channels.get(process.env.TEXT_CHANNEL_ID);
+    textChannel = client.channels.cache.get(process.env.TEXT_CHANNEL_ID);
 
     // bot用のテキストチャンネルに起動メッセージ送信
     if (textChannel) {
@@ -46,7 +46,7 @@ client.on('message', message => {
   // 定義されていない場合はどこからでも反応できるようにする
   if (!textChannel || message.channel.id === process.env.TEXT_CHANNEL_ID) {
     const sender        = message.member; // 送信者
-    const voiceChannel  = sender.voiceChannel; // 送信者の接続しているボイスチャンネル
+    const voiceChannel  = sender.voice.channel; // 送信者の接続しているボイスチャンネル
 
     // メッセージが「.」から始まる場合botが反応する
     if (message.content.slice(0, 1) === '.') {
@@ -71,31 +71,13 @@ client.on('message', message => {
           // 同じボイスチャンネルに接続
           voiceChannel.join().then(connection => {
             // 指定された音声を再生
-            connection.playFile('./voiceList/' + voiceList[botMessage]);
+            connection.play('./voiceList/' + voiceList[botMessage]);
           });
         }
       } else if (botMessage === 'leave' && voiceChannel) {
         // 「.leave」でボイスチャンネルから退出
         voiceChannel.leave();
       }
-    }
-  }
-});
-
-// ユーザ毎の入室音を取得
-const jsonData        = fs.readFileSync('joinedVoiceList.json');
-const joinedVoiceList = JSON.parse(jsonData);
-
-client.on('voiceStateUpdate', (oldMember, newMember) => {
-  // joinedVoiceList.jsonで定義したユーザ名のみ対象
-  if (Object.keys(joinedVoiceList).indexOf(newMember.user.username) !== -1) {
-    // ボイスチャンネルに入室した場合
-    if (oldMember.voiceChannelID !== newMember.voiceChannelID && newMember.voiceChannelID !== null) {
-      // 予め指定された音声を再生する
-      const voiceChannel = client.channels.get(newMember.voiceChannelID);
-      voiceChannel.join().then(connection => {
-        connection.playFile('./voiceList/' + voiceList[joinedVoiceList[newMember.user.username]]);
-      });
     }
   }
 });

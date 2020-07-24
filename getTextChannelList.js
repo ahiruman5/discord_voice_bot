@@ -8,7 +8,7 @@ client.login(process.env.TOKEN_ID).catch(() => {
 });
 
 client.on('ready', () => {
-  client.channels.forEach(channelInfo => {
+  client.channels.cache.forEach(channelInfo => {
     if (channelInfo.type === 'text') {
       console.log(channelInfo.id + ' => サーバ名: ' + channelInfo.guild.name + ', テキストチャンネル名: ' + channelInfo.name);
     }
